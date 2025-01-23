@@ -28,6 +28,8 @@ wp core install --url="$WORDPRESS_URL" \
                 --admin_email="$ADMIN_EMAIL" \
                 --path=/var/www/html --allow-root
 
+wp user create user1 user1@gmail.com --role=subscriber --user_pass="$ADMIN_PASSWORD" --path=/var/www/html --allow-root
+
 wp plugin install akismet --activate --path=/var/www/html --allow-root
 wp theme install twentytwentyfour --activate --path=/var/www/html --allow-root
 
