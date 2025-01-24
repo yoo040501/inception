@@ -3,19 +3,26 @@ volumes:
     mariadb-data: {}
 services:
     mariadb:
+        env_file:
+            - .env
         build:
             context: .
             dockerfile: ./requirements/mariadb/Dockerfile
         restart: always
         volumes:
+            # - /Users/dongeunk/data/mariadb:/var/lib/mysql
             - mariadb-data:/var/lib/mysql
         expose:
             - "3306"
         networks:
             - intra
-        env_file:
-            - .env
         tty: true
+        healthcheck:
+          test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+          interval: 10s
+          timeout: 5s
+          retries: 3
+
 
     wordpress:
         build:
@@ -23,7 +30,8 @@ services:
             dockerfile: ./requirements/wordpress/Dockerfile
         restart: always
         volumes:
-            - data:/var/www/html
+            - /Users/dongeunk/data/wordpress:/var/www/html
+            # - data:/var/www/html
         expose: 
             - "9000"
         networks:
@@ -32,7 +40,13 @@ services:
             - .env
         tty: true
         depends_on:
-            - mariadb
+            mariadb:
+              condition: service_healthy
+        healthcheck:
+          test: ["CMD", "php-fpm7.4", "-t"]
+          interval: 10s
+          timeout: 5s
+          retries: 3
     nginx:
         build:
             context: .
@@ -41,14 +55,16 @@ services:
         ports:
             - "443:443"
         volumes:
-            - data:/var/www/html
+            - /Users/dongeunk/data/wordpress:/var/www/html
+            # - data:/var/www/html
         networks:
             - intra
         env_file:
             - .env
         tty: true
         depends_on:
-            - wordpress
+            wordpress:
+              condition: service_healthy
 networks:
     intra:
         driver: bridge
