@@ -20,8 +20,8 @@ WORKDIR /var/www/html
 EXPOSE 9000
 
 COPY ./requirements/wordpress/tools/script.sh /
-COPY ./requirements/wordpress/tools/wp-config.php /var/www/html/wp-config.php
+#COPY ./requirements/wordpress/tools/wp-config.php /wp-config.php
 
 RUN chmod +x /script.sh
 
-CMD [ "/script.sh" ]
+ENTRYPOINT ["bash", "/script.sh" ]

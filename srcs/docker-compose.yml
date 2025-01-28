@@ -17,12 +17,6 @@ services:
         networks:
             - intra
         tty: true
-        healthcheck:
-          test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-          interval: 10s
-          timeout: 5s
-          retries: 3
-
 
     wordpress:
         build:
@@ -30,7 +24,7 @@ services:
             dockerfile: ./requirements/wordpress/Dockerfile
         restart: always
         volumes:
-            - /Users/dongeunk/data/wordpress:/var/www/html
+            - ./data/wordpress:/var/www/html
             # - data:/var/www/html
         expose: 
             - "9000"
@@ -40,13 +34,14 @@ services:
             - .env
         tty: true
         depends_on:
-            mariadb:
-              condition: service_healthy
+            - mariadb
         healthcheck:
-          test: ["CMD", "php-fpm7.4", "-t"]
-          interval: 10s
-          timeout: 5s
-          retries: 3
+            test: ["CMD", "php-fpm7.4", "-t"]
+            interval: 30s
+            timeout: 5s
+            retries: 3
+            start_period: 30s
+
     nginx:
         build:
             context: .
@@ -55,7 +50,7 @@ services:
         ports:
             - "443:443"
         volumes:
-            - /Users/dongeunk/data/wordpress:/var/www/html
+            - ./data/wordpress:/var/www/html
             # - data:/var/www/html
         networks:
             - intra
@@ -63,8 +58,8 @@ services:
             - .env
         tty: true
         depends_on:
-            wordpress:
-              condition: service_healthy
+          wordpress:
+            condition: service_healthy
 networks:
     intra:
         driver: bridge
