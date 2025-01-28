@@ -15,13 +15,12 @@ RUN apt-get update && \
 		vim && \
     apt-get clean
 
-WORKDIR /var/www/html
-
 EXPOSE 9000
 
 COPY ./requirements/wordpress/tools/script.sh /
 #COPY ./requirements/wordpress/tools/wp-config.php /wp-config.php
 
 RUN chmod +x /script.sh
+WORKDIR /var/www/html
 
 ENTRYPOINT ["bash", "/script.sh" ]

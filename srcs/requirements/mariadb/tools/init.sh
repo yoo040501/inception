@@ -9,7 +9,7 @@ mysqld --user=mysql --skip-networking &
 MYSQLD_PID=$!
 
 # Wait for MariaDB to start
-for i in {60..0}; do
+for i in {30..0}; do
 	if echo 'SELECT 1' | mysql --protocol=socket --socket=/run/mysqld/mysqld.sock -uroot &> /dev/null; then
 		break
 	fi
