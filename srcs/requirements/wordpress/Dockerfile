@@ -12,6 +12,7 @@ RUN apt-get update && \
 		php-mbstring \
 		php-xml \
 		sendmail \
+		netcat-openbsd	\
 		vim && \
     apt-get clean
 

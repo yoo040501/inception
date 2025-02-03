@@ -19,10 +19,11 @@ chmod -R 755 $WP_PATH
 # sed -i -r "s/dongeun/$WORDPRESS_DB_USER/1"  wp-config.php
 # sed -i -r "s/password/$WORDPRESS_DB_PASSWORD/1"    wp-config.php
 # sed -i -r "s/mariadb:3306/$WORDPRESS_DB_HOST/1"    wp-config.php
-curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
-chmod +x wp-cli.phar
-mv wp-cli.phar /usr/local/bin/wp
-
+if [ ! -f /usr/local/bin/wp ]; then
+	curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+	chmod +x wp-cli.phar
+	mv wp-cli.phar /usr/local/bin/wp
+fi
 if [ ! -d "$WP_PATH/wp-admin" ]; then
     wp core download --path=$WP_PATH --allow-root
 fi
@@ -46,9 +47,22 @@ wp core install --url="$WORDPRESS_URL" \
                 --path=$WP_PATH --allow-root
 fi
 
-wp user create user1 user1@gmail.com --role=subscriber --user_pass="$ADMIN_PASSWORD" --path=$WP_PATH --allow-root
+if ! wp user list --field=user_login --path="$WP_PATH" --allow-root | grep -q "^user1$"; then
+    wp user create user1 user1@gmail.com --role=subscriber --user_pass="$ADMIN_PASSWORD" --path="$WP_PATH" --allow-root
+else
+    echo "user1 already exists, skipping creation."
+fi
 
-wp plugin install akismet --activate --path=$WP_PATH --allow-root
-wp theme install twentytwentyfour --activate --path=$WP_PATH --allow-root
+if ! wp plugin list --status=active --field=name --path="$WP_PATH" --allow-root | grep -q "^akismet$"; then
+    wp plugin install akismet --activate --path="$WP_PATH" --allow-root
+else
+    echo "Akismet plugin already installed and active."
+fi
+
+if ! wp theme list --status=active --field=name --path="$WP_PATH" --allow-root | grep -q "^twentytwentyfour$"; then
+    wp theme install twentytwentyfour --activate --path="$WP_PATH" --allow-root
+else
+    echo "Twenty Twenty-Four theme already installed and active."
+fi
 
 /usr/sbin/php-fpm7.4 -F

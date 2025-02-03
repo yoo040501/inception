@@ -1,6 +1,6 @@
-volumes:
-    data: {}
-    mariadb-data: {}
+# volumes:
+#     data: {}
+#     mariadb-data: {}
 services:
     mariadb:
         env_file:
@@ -10,8 +10,8 @@ services:
             dockerfile: ./requirements/mariadb/Dockerfile
         restart: always
         volumes:
-            # - /Users/dongeunk/data/mariadb:/var/lib/mysql
-            - mariadb-data:/var/lib/mysql
+            - ./data/mariadb:/var/lib/mysql
+            # - mariadb-data:/var/lib/mysql
         expose:
             - "3306"
         networks:
@@ -36,11 +36,11 @@ services:
         depends_on:
             - mariadb
         healthcheck:
-            test: ["CMD", "php-fpm7.4", "-t"]
+            test: ["CMD-SHELL", "nc -z localhost 9000 || exit 1"]
             interval: 10s
             timeout: 5s
             retries: 3
-            start_period: 30s
+            start_period: 60s
 
     nginx:
         build:
