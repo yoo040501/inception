@@ -30,12 +30,12 @@ services:
         tty: true
         depends_on:
             - mariadb
-        healthcheck:
-            test: ["CMD-SHELL", "nc -z localhost 9000 || exit 1"]
-            interval: 10s
-            timeout: 5s
-            retries: 3
-            start_period: 60s
+        # healthcheck:
+        #     test: ["CMD-SHELL", "nc -z localhost 9000 || exit 1"]
+        #     interval: 10s
+        #     timeout: 5s
+        #     retries: 3
+        #     start_period: 60s
 
     nginx:
         build:
@@ -52,8 +52,8 @@ services:
             - .env
         tty: true
         depends_on:
-          wordpress:
-            condition: service_healthy
+          - wordpress
+            # condition: service_healthy
 networks:
     intra:
         driver: bridge
