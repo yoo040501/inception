@@ -1,26 +1,30 @@
 services:
     mariadb:
-        env_file:
-            - .env
         build:
             context: .
             dockerfile: ./requirements/mariadb/Dockerfile
+        image: mariadb
+        container_name: mariadb
         restart: always
         volumes:
-            - /home/dongeunk/data/mariadb:/var/lib/mysql
+            - mariadb_volume:/var/lib/mysql
         expose:
             - "3306"
         networks:
             - intra
+        env_file:
+            - .env
         tty: true
 
     wordpress:
         build:
             context: .
             dockerfile: ./requirements/wordpress/Dockerfile
+        image: wordpress
+        container_name: wordpress
         restart: always
         volumes:
-            - /home/dongeunk/data/wordpress:/var/www/html
+            - wordpress_volume:/var/www/html
         expose: 
             - "9000"
         networks:
@@ -30,42 +34,45 @@ services:
         tty: true
         depends_on:
             - mariadb
-        # healthcheck:
-        #     test: ["CMD-SHELL", "nc -z localhost 9000 || exit 1"]
-        #     interval: 10s
-        #     timeout: 5s
-        #     retries: 3
-        #     start_period: 60s
+        healthcheck:
+            test: ["CMD-SHELL", "nc -z localhost 9000 || exit 1"]
+            interval: 10s
+            timeout: 5s
+            retries: 3
+            start_period: 60s
 
     nginx:
         build:
             context: .
             dockerfile: ./requirements/nginx/Dockerfile
+        image: nginx
+        container_name: nginx
         restart: always
         ports:
             - "443:443"
         volumes:
-            - /home/dongeunk/data/wordpress:/var/www/html
+            - wordpress_volume:/var/www/html
         networks:
             - intra
         env_file:
             - .env
         tty: true
         depends_on:
-          - wordpress
-            # condition: service_healthy
+            # - wordpress
+          wordpress:
+            condition: service_healthy
 networks:
     intra:
         driver: bridge
     
-# volumes:
-#     mariadb_volume:
-#         driver_opts:
-#             type: local
-#             device: /home/dongeunk/data/mariadb
-#             o: bind
-#     wordpress_volume:
-#         driver_opts:
-#             type: local
-#             device: /home/dongeunk/data/wordpress
-#             o: bind
+volumes:
+    mariadb_volume:
+        driver_opts:
+            type: local
+            device: /home/dongeunk/data/mariadb
+            o: bind
+    wordpress_volume:
+        driver_opts:
+            type: local
+            device: /home/dongeunk/data/wordpress
+            o: bind

@@ -1,16 +1,15 @@
 #!/bin/bash
 
-mkdir -p /run/mysqld && chown -R mysql:mysql /run/mysqld
 sed -i 's/^bind-address.*/# bind-address  = 127.0.0.1/' /etc/mysql/mariadb.conf.d/50-server.cnf
 
+mkdir -p /run/mysqld && chown -R mysql:mysql /run/mysqld
 mkdir -p /var/lib/mysql
 chown -R mysql:mysql /var/lib/mysql
 chmod 755 /var/lib/mysql
 
 # MariaDB 데이터 디렉토리가 비어 있을 때만 초기화 실행
-if [ ! -d /var/lib/mysql/mysql ]; then
+if [ ! -d /var/lib/mysql/$MYSQL_DATABASE ]; then
     echo "Initializing database..."
-    mysql_install_db --user=mysql --datadir=/var/lib/mysql > /dev/null
 
     mysqld --user=mysql --skip-networking &
     MYSQLD_PID=$!

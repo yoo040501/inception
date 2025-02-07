@@ -1,7 +1,6 @@
 FROM debian:bullseye
 
 RUN apt-get update && \
-	apt-get upgrade && \
     apt-get -y install \
 		php7.4 \
 		php-fpm \
@@ -11,10 +10,9 @@ RUN apt-get update && \
 		php-mysql \
 		php-mbstring \
 		php-xml \
-		sendmail \
 		netcat-openbsd	\
-		vim && \
-    apt-get clean
+		tini && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
 EXPOSE 9000
 
@@ -24,4 +22,5 @@ COPY ./requirements/wordpress/tools/script.sh /
 RUN chmod +x /script.sh
 WORKDIR /var/www/html
 
-ENTRYPOINT ["bash", "/script.sh" ]
+ENTRYPOINT ["/usr/bin/tini", "--"]
+CMD ["bash", "/script.sh"]

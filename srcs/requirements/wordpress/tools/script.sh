@@ -14,15 +14,14 @@ if [ ! -f "$WP_PATH/wp-config.php" ]; then
 		--dbuser="$WORDPRESS_DB_USER" \
 		--dbpass="$WORDPRESS_DB_PASSWORD" \
 		--dbhost="$WORDPRESS_DB_HOST" \
-		--path=$WP_PATH \
-		--allow-root
+		--path=$WP_PATH --allow-root
 	wp core install --url="$WORDPRESS_URL" \
 					--title="$WORDPRESS_TITLE" \
 					--admin_user="$ADMIN_USER" \
 					--admin_password="$ADMIN_PASSWORD" \
 					--admin_email="$ADMIN_EMAIL" \
 					--path=$WP_PATH --allow-root
-
+					
 	wp user create user1 user1@gmail.com --role=subscriber --user_pass="$ADMIN_PASSWORD" --path="$WP_PATH" --allow-root
 	wp plugin install akismet --activate --path="$WP_PATH" --allow-root
 	wp theme install twentytwentyfour --activate --path="$WP_PATH" --allow-root
